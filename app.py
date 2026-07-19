@@ -1,0 +1,235 @@
+import streamlit as st
+import json
+import os
+import urllib.parse
+
+# 1. Page Configuration
+st.set_page_config(page_title="Pithampur Property Portal", layout="wide", page_icon="🏢")
+
+DB_FILE = "database.json"
+
+# Helper Functions to Read/Write JSON Database
+def load_db():
+    if os.path.exists(DB_FILE):
+        with open(DB_FILE, "r") as f:
+            return json.load(f)
+    return {}
+
+def save_db(data):
+    with open(DB_FILE, "w") as f:
+        json.dump(data, f, indent=4)
+
+# Load current data
+db_data = load_db()
+
+# Navigation State Manager
+if 'current_page' not in st.session_state:
+    st.session_state.current_page = "Home"
+
+# ----------------- SIDEBAR ADMIN PANEL -----------------
+st.sidebar.title("🔐 Owner Control Panel")
+admin_mode = st.sidebar.checkbox("Admin Mode On Karein")
+
+if admin_mode:
+    # Aapka password setup (Apne hisab se change kar sakte hain)
+    password = st.sidebar.text_input("Enter Admin Password", type="password")
+    if password == "admin123":  # <-- Default Password
+        st.sidebar.success("Welcome back! Aap control panel me hain.")
+        
+        # --- ACTION 1: Plot Status Update ---
+        st.sidebar.subheader("🔄 Change Plot Status")
+        colony_to_edit = st.sidebar.selectbox("Colony Chunein:", list(db_data.keys()))
+        
+        if colony_to_edit:
+            plots_list = [p["no"] for p in db_data[colony_to_edit]["plots"]]
+            plot_to_edit = st.sidebar.selectbox("Plot No Chunein:", plots_list)
+            new_status = st.sidebar.selectbox("Naya Status Chunein:", ["Available", "Booked", "Sold"])
+            
+            if st.sidebar.button("Update Status"):
+                for plot in db_data[colony_to_edit]["plots"]:
+                    if plot["no"] == plot_to_edit:
+                        plot["status"] = new_status
+                        break
+                save_db(db_data)
+                st.sidebar.success(f"Plot {plot_to_edit} ab {new_status} ho gaya hai!")
+                st.rerun()
+
+        # --- ACTION 2: Nayi Location/Colony Add Karein ---
+        st.sidebar.subheader("➕ Add New Location")
+        new_colony_name = st.sidebar.text_input("New Location Name (e.g. Dream Residency)")
+        new_colony_loc = st.sidebar.text_input("Short Description / Address")
+        new_colony_image = st.sidebar.text_input("Image Link (URL)", "https://images.unsplash.com/photo-1564013799919-ab600027ffc6")
+        new_colony_map_link = st.sidebar.text_input("Google Maps Direct Link (Navigation)")
+        
+        # Default map iframe URL for template
+        default_iframe = "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d14736!2d75.69!3d22.63!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zMjLCbDM3JzEyLjAiTiA3NSc0MCcwOC4wIkU!5e0!3m2!1sen!2sin!4v1600000000000!5m2!1sen!2sin"
+        
+        # Let's add 5 dummy plots by default
+        if st.sidebar.button("Add New Location"):
+            if new_colony_name and new_colony_name not in db_data:
+                db_data[new_colony_name] = {
+                    "image": new_colony_image,
+                    "location_text": new_colony_loc,
+                    "map_embed_url": default_iframe,
+                    "map_link": new_colony_map_link,
+                    "plots": [
+                        {"no": "1", "size": "1000 sqft", "status": "Available", "price": "10 Lakh"},
+                        {"no": "2", "size": "1000 sqft", "status": "Available", "price": "10 Lakh"},
+                        {"no": "3", "size": "1000 sqft", "status": "Available", "price": "10 Lakh"}
+                    ]
+                }
+                save_db(db_data)
+                st.sidebar.success(f"{new_colony_name} website par add ho chuki hai!")
+                st.rerun()
+            else:
+                st.sidebar.error("Naam khali hai ya pehle se exist karta hai.")
+    else:
+        if password:
+            st.sidebar.error("Wrong Password! Kripya sahi password dalein.")
+
+# ----------------- PAGE 1: USER HOME PAGE -----------------
+if st.session_state.current_page == "Home":
+    st.title("🏢 Pithampur Property Portal")
+    st.subheader("Hamari Active Locations Aur Available Plots")
+    st.write("Kisi bhi area ke list aur baki plots dekhne ke liye click karein.")
+    st.write("---")
+
+    if not db_data:
+        st.warning("Koi location available nahi hai. Admin panel se add karein!")
+    else:
+        # Display Colonies Grid (3 per row)
+        cols = st.columns(3)
+        col_index = 0
+
+        for colony_name, data in db_data.items():
+            with cols[col_index % 3]:
+                st.image(data["image"], use_container_width=True)
+                st.subheader(colby_name := colony_name)
+                st.caption(f"📍 {data['location_text']}")
+                
+                if st.button(f"View Layout & Map ->", key=colby_name):
+                    st.session_state.current_page = colby_name
+                    st.rerun()
+                st.write("---")
+            col_index += 1
+
+# ----------------- PAGE 2: COLONY DETAIL PAGE -----------------
+else:
+    colony_name = st.session_state.current_page
+    if colony_name in db_data:
+        colony_data = db_data[colony_name]
+
+        if st.button("⬅️ Back to Home"):
+            st.session_state.current_page = "Home"
+            st.rerun()
+
+        st.title(f"📍 {colony_name}")
+        st.write(f"**Location:** {colony_data['location_text']}")
+        st.write("---")
+
+        col_left, col_right = st.columns([1, 1.2])
+
+        with col_left:
+            st.subheader("🗺️ Location Map")
+            st.components.v1.iframe(colony_data["map_embed_url"], height=400)
+            
+            st.markdown(f'''
+                <a href="{colony_data['map_link']}" target="_blank">
+                    <button style="
+                        width: 100%; 
+                        background-color: #4285F4; 
+                        color: white; 
+                        border: none; 
+                        padding: 10px; 
+                        border-radius: 5px; 
+                        font-size: 16px; 
+                        cursor: pointer;
+                        font-weight: bold;
+                    ">📍 Open in Google Maps (Navigation)</button>
+                </a>
+            ''', unsafe_allow_html=True)
+
+        with col_right:
+            st.subheader("🟢 Live Plot Layout Grid")
+            st.write("Red = Sold | Yellow = Booked | Green = Available")
+            
+            plot_cols = st.columns(3)
+            for idx, plot in enumerate(colony_data["plots"]):
+                if plot["status"] == "Available":
+                    bg_color = "#2ecc71"
+                    text_color = "white"
+                elif plot["status"] == "Booked":
+                    bg_color = "#f1c40f"
+                    text_color = "black"
+                else:
+                    bg_color = "#e74c3c"
+                    text_color = "white"
+
+                with plot_cols[idx % 3]:
+                    st.markdown(
+                        f"""
+                        <div style="
+                            background-color: {bg_color}; 
+                            color: {text_color}; 
+                            padding: 15px; 
+                            border-radius: 8px; 
+                            text-align: center; 
+                            margin-bottom: 10px;
+                            box-shadow: 2px 2px 5px rgba(0,0,0,0.1);
+                        ">
+                            <h4 style="margin:0;">Plot {plot['no']}</h4>
+                            <p style="margin:5px 0 0 0; font-size:13px;">Size: {plot['size']}</p>
+                            <p style="margin:2px 0 0 0; font-weight:bold;">Price: {plot['price']}</p>
+                            <span style="font-size:11px; background: rgba(0,0,0,0.15); padding: 2px 5px; border-radius:3px;">{plot['status']}</span>
+                        </div>
+                        """, 
+                        unsafe_allow_html=True
+                    )
+
+        # Contact Section
+        st.write("---")
+        st.subheader("📞 Interested in this Property?")
+        
+        whatsapp_number = "+919876543210"  # <-- YAHAN APNA REAL WHATSAPP NUMBER DALEIN
+        custom_message = f"Hello! Mujhe '{colony_name}' me plots ki enquiry karni hai."
+        encoded_message = urllib.parse.quote(custom_message)
+        whatsapp_url = f"https://wa.me/{whatsapp_number}?text={encoded_message}"
+
+        c1, c2 = st.columns(2)
+        with c1:
+            st.markdown(f'''
+                <a href="{whatsapp_url}" target="_blank">
+                    <button style="
+                        width: 100%; 
+                        background-color: #25D366; 
+                        color: white; 
+                        border: none; 
+                        padding: 15px; 
+                        border-radius: 8px; 
+                        font-size: 18px; 
+                        cursor: pointer;
+                        font-weight: bold;
+                    ">💬 Chat on WhatsApp</button>
+                </a>
+            ''', unsafe_allow_html=True)
+        with c2:
+            st.markdown(f'''
+                <a href="tel:{whatsapp_number}">
+                    <button style="
+                        width: 100%; 
+                        background-color: #1a1a1a; 
+                        color: white; 
+                        border: none; 
+                        padding: 15px; 
+                        border-radius: 8px; 
+                        font-size: 18px; 
+                        cursor: pointer;
+                        font-weight: bold;
+                    ">📞 Call Agent Now</button>
+                </a>
+            ''', unsafe_allow_html=True)
+    else:
+        st.error("Colony not found.")
+        if st.button("Go to Home"):
+            st.session_state.current_page = "Home"
+            st.rerun()

@@ -1,0 +1,48 @@
+{
+    "Saraswati Vihar": {
+        "image": "https://images.unsplash.com/photo-1524813686514-a57563d77d61?auto=format&fit=crop&w=800&q=80",
+        "location_text": "Pithampur Sector 1, Main Road Se 200m",
+        "map_embed_url": "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d14736.357112040685!2d75.68!3d22.62!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zMjLCbDM3JzEyLjAiTiA3NSc0MCcwOC4wIkU!5e0!3m2!1sen!2sin!4v1600000000000!5m2!1sen!2sin",
+        "map_link": "https://maps.google.com/?q=22.6200,75.6800",
+        "plots": [
+            {
+                "no": "A-1",
+                "size": "1000 sqft",
+                "status": "Available",
+                "price": "15 Lakh"
+            },
+            {
+                "no": "A-2",
+                "size": "1200 sqft",
+                "status": "Sold",
+                "price": "18 Lakh"
+            },
+            {
+                "no": "A-3",
+                "size": "1000 sqft",
+                "status": "Booked",
+                "price": "15 Lakh"
+            }
+        ]
+    },
+    "Dream City": {
+        "image": "https://images.unsplash.com/photo-1564013799919-ab600027ffc6?auto=format&fit=crop&w=800&q=80",
+        "location_text": "Near Indore-Ahmedabad Highway, Pithampur",
+        "map_embed_url": "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d14736!2d75.69!3d22.63!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zMjLCbDM3JzEyLjAiTiA3NSc0MCcwOC4wIkU!5e0!3m2!1sen!2sin!4v1600000000000!5m2!1sen!2sin",
+        "map_link": "https://maps.google.com/?q=22.6300,75.6900",
+        "plots": [
+            {
+                "no": "101",
+                "size": "1000 sqft",
+                "status": "Available",
+                "price": "16 Lakh"
+            },
+            {
+                "no": "102",
+                "size": "1200 sqft",
+                "status": "Booked",
+                "price": "19.5 Lakh"
+            }
+        ]
+    }
+}
