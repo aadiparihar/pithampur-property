@@ -35,16 +35,28 @@ if admin_mode:
     if password == "admin123":
         st.sidebar.success("Welcome back! Aap control panel me hain.")
         
-        # --- ACTION 1: Plot Status Update ---
-        st.sidebar.subheader("🔄 Change Plot Status")
+        # --- ACTION 1: Plot Status & Video Update ---
+        st.sidebar.subheader("🔄 Update Colony Details")
         colony_to_edit = st.sidebar.selectbox("Colony Chunein (Edit):", list(db_data.keys()))
         
         if colony_to_edit:
+            # Video Link Update Option
+            current_video = db_data[colony_to_edit].get("video_url", "")
+            updated_video = st.sidebar.text_input("Colony Video Link (URL):", current_video)
+            
+            if st.sidebar.button("Update Video Link"):
+                db_data[colony_to_edit]["video_url"] = updated_video
+                save_db(db_data)
+                st.sidebar.success("Video link successfully update ho gaya!")
+                st.rerun()
+                
+            st.sidebar.write("---")
+            # Plot Edit Section
             plots_list = [p["no"] for p in db_data[colony_to_edit]["plots"]]
             plot_to_edit = st.sidebar.selectbox("Plot No Chunein:", plots_list)
             new_status = st.sidebar.selectbox("Naya Status Chunein:", ["Available", "Booked", "Sold"])
             
-            if st.sidebar.button("Update Status"):
+            if st.sidebar.button("Update Plot Status"):
                 for plot in db_data[colony_to_edit]["plots"]:
                     if plot["no"] == plot_to_edit:
                         plot["status"] = new_status
@@ -53,7 +65,7 @@ if admin_mode:
                 st.sidebar.success(f"Plot {plot_to_edit} ab {new_status} ho gaya hai!")
                 st.rerun()
 
-        # --- NEW ACTION: Delete Colony (Purani hatane ke liye) ---
+        # --- ACTION 2: Delete Colony ---
         st.sidebar.subheader("🗑️ Delete Location / Colony")
         colony_to_delete = st.sidebar.selectbox("Colony Chunein (Delete):", list(db_data.keys()), key="delete_box")
         if st.sidebar.button("❌ Remove Colony Permanently"):
@@ -63,12 +75,13 @@ if admin_mode:
                 st.sidebar.success(f"{colony_to_delete} ko hata diya gaya hai!")
                 st.rerun()
 
-        # --- ACTION 2: Nayi Location/Colony Add Karein ---
+        # --- ACTION 3: Nayi Location Add Karein ---
         st.sidebar.subheader("➕ Add New Location")
         new_colony_name = st.sidebar.text_input("New Location Name")
         new_colony_loc = st.sidebar.text_input("Short Description / Address")
         new_colony_image = st.sidebar.text_input("Image Link (URL)", "https://images.unsplash.com/photo-1564013799919-ab600027ffc6")
         new_colony_map_link = st.sidebar.text_input("Google Maps Direct Link")
+        new_colony_video = st.sidebar.text_input("Colony Video URL (Optional)")
         
         default_iframe = "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3684.0759328224095!2d75.6395155!3d22.6453!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zMjLCbDM3JzQzLjEiTiA3NSczOCcyMi4zIkU!5e0!3m2!1sen!2sin!4v1721500000000!5m2!1sen!2sin"
         
@@ -79,6 +92,7 @@ if admin_mode:
                     "location_text": new_colony_loc,
                     "map_embed_url": default_iframe,
                     "map_link": new_colony_map_link,
+                    "video_url": new_colony_video,
                     "plots": [
                         {"no": "1", "size": "1000 sqft", "status": "Available", "price": "10 Lakh"},
                         {"no": "2", "size": "1200 sqft", "status": "Available", "price": "12 Lakh"},
@@ -99,7 +113,7 @@ if st.session_state.current_page == "Home":
     st.write("---")
 
     if not db_data:
-        st.info("Koi location active nahi hai. Admin panel se 'Dream City' ya naya project add karein!")
+        st.info("Koi location active nahi hai. Admin panel se purani hatayein aur nayi add karein!")
     else:
         cols = st.columns(3)
         col_index = 0
@@ -129,6 +143,13 @@ else:
         st.title(f"📍 {colony_name}")
         st.write(f"**Location:** {colony_data['location_text']}")
         st.write("---")
+
+        # --- LIVE VIDEO UPDATE IN DETAIL PAGE ---
+        video_url = colony_data.get("video_url", "")
+        if video_url:
+            st.subheader("📺 Colony Real Site Video View")
+            st.video(video_url)
+            st.write("---")
 
         col_left, col_right = st.columns([1, 1.2])
 
@@ -173,7 +194,7 @@ else:
         st.write("---")
         st.subheader("📞 Interested in this Property?")
         
-        whatsapp_number = "+919876543210"  # <-- Apna real number yahan daal sakte hain
+        whatsapp_number = "+919876543210" # Apna Number yahan dal dena
         custom_message = f"Hello! Mujhe '{colony_name}' me plots ki enquiry karni hai."
         encoded_message = urllib.parse.quote(custom_message)
         whatsapp_url = f"https://wa.me/{whatsapp_number}?text={encoded_message}"
