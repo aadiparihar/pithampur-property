@@ -4,15 +4,15 @@ import urllib.parse
 # 1. Page Configuration
 st.set_page_config(page_title="Pithampur Property Portal", layout="wide", page_icon="🏢")
 
-# Direct Data inside Code (No JSON Database dependency for clean setup)
+# Direct Data inside Code (Everything controllable via Admin Panel)
 if 'db_data' not in st.session_state:
     st.session_state.db_data = {
         "Dream City (Kalibillod)": {
-            "image": "https://images.unsplash.com/photo-1564013799919-ab600027ffc6",
+            "image": "https://images.unsplash.com/photo-1564013799919-ab600027ffc6", # Admin panel se change ho jayegi
             "location_text": "Near Pithampur Industrial Area, Kalibillod, Madhya Pradesh",
             "map_embed_url": "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3684.0759328224095!2d75.6395155!3d22.6453!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zMjLCbDM4JzQzLjEiTiA3NSczOCcyMi4zIkU!5e0!3m2!1sen!2sin!4v1721500000000!5m2!1sen!2sin",
             "map_link": "https://maps.google.com/?q=22.6453,75.6421",
-            "video_url": "",  # Admin panel se update ho sakega
+            "video_url": "",  # YouTube link yahan aayega
             "plots": [
                 {"no": "24", "size": "1037 sqft", "status": "Available", "price": "Call for Price"},
                 {"no": "90", "size": "1200 sqft", "status": "Available", "price": "Call for Price"},
@@ -49,12 +49,18 @@ if admin_mode:
         colony_to_edit = st.sidebar.selectbox("Colony Chunein:", list(db_data.keys()))
         
         if colony_to_edit:
+            # Main Banner Image Update
+            current_image = db_data[colony_to_edit].get("image", "")
+            updated_image = st.sidebar.text_input("Colony Image Link (URL):", current_image)
+            
             # Video URL Update
             current_video = db_data[colony_to_edit].get("video_url", "")
-            updated_video = st.sidebar.text_input("Colony Video Link (URL):", current_video)
-            if st.sidebar.button("Update Video Link"):
+            updated_video = st.sidebar.text_input("Colony Video Link (YouTube URL):", current_video)
+            
+            if st.sidebar.button("Save Media Updates"):
+                db_data[colony_to_edit]["image"] = updated_image
                 db_data[colony_to_edit]["video_url"] = updated_video
-                st.sidebar.success("Video link update ho gaya!")
+                st.sidebar.success("Media successfully update ho gaya!")
                 st.rerun()
                 
             st.sidebar.write("---")
@@ -159,7 +165,7 @@ else:
         st.write("---")
         st.subheader("📞 Interested in this Property?")
         
-        whatsapp_number = "+919876543210" # Yahan apna sahi number daal dena bhai
+        whatsapp_number = "+919876543210" # WhatsApp number daal dena
         custom_message = f"Hello! Mujhe '{colony_name}' me plot no. ki enquiry karni hai."
         encoded_message = urllib.parse.quote(custom_message)
         whatsapp_url = f"https://wa.me/{whatsapp_number}?text={encoded_message}"
