@@ -13,13 +13,29 @@ def load_db():
     if os.path.exists(DB_FILE):
         with open(DB_FILE, "r") as f:
             return json.load(f)
-    return {}
+    # Default Database with ONLY Dream City (Kalibillod)
+    return {
+        "Dream City (Kalibillod)": {
+            "image": "https://images.unsplash.com/photo-1564013799919-ab600027ffc6",
+            "location_text": "Kalibillod, Pithampur Road",
+            "map_embed_url": "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3684.0759328224095!2d75.6395155!3d22.6453!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zMjLCbDM3JzQzLjEiTiA3NSczOCcyMi4zIkU!5e0!3m2!1sen!2sin!4v1721500000000!5m2!1sen!2sin",
+            "map_link": "https://maps.google.com",
+            "video_url": "",  # Yahan Admin Panel se video link update ho jayega
+            "plots": [
+                {"no": "1", "size": "1000 sqft", "status": "Available", "price": "10 Lakh"},
+                {"no": "2", "size": "1200 sqft", "status": "Available", "price": "12 Lakh"},
+                {"no": "3", "size": "1500 sqft", "status": "Available", "price": "15 Lakh"},
+                {"no": "4", "size": "1000 sqft", "status": "Available", "price": "10 Lakh"},
+                {"no": "5", "size": "1200 sqft", "status": "Available", "price": "12 Lakh"}
+            ]
+        }
+    }
 
 def save_db(data):
     with open(DB_FILE, "w") as f:
         json.dump(data, f, indent=4)
 
-# Load current data
+# Initialize Database
 db_data = load_db()
 
 # Navigation State Manager
@@ -35,7 +51,7 @@ if admin_mode:
     if password == "admin123":
         st.sidebar.success("Welcome back! Aap control panel me hain.")
         
-        # --- ACTION 1: Plot Status & Video Update ---
+        # --- ACTION 1: Update Video Link & Plots ---
         st.sidebar.subheader("🔄 Update Colony Details")
         colony_to_edit = st.sidebar.selectbox("Colony Chunein (Edit):", list(db_data.keys()))
         
@@ -75,7 +91,7 @@ if admin_mode:
                 st.sidebar.success(f"{colony_to_delete} ko hata diya gaya hai!")
                 st.rerun()
 
-        # --- ACTION 3: Nayi Location Add Karein ---
+        # --- ACTION 3: Add New Location ---
         st.sidebar.subheader("➕ Add New Location")
         new_colony_name = st.sidebar.text_input("New Location Name")
         new_colony_loc = st.sidebar.text_input("Short Description / Address")
@@ -113,7 +129,7 @@ if st.session_state.current_page == "Home":
     st.write("---")
 
     if not db_data:
-        st.info("Koi location active nahi hai. Admin panel se purani hatayein aur nayi add karein!")
+        st.info("Koi location active nahi hai. Admin panel se add karein!")
     else:
         cols = st.columns(3)
         col_index = 0
@@ -144,7 +160,7 @@ else:
         st.write(f"**Location:** {colony_data['location_text']}")
         st.write("---")
 
-        # --- LIVE VIDEO UPDATE IN DETAIL PAGE ---
+        # --- LIVE VIDEO VIEW ---
         video_url = colony_data.get("video_url", "")
         if video_url:
             st.subheader("📺 Colony Real Site Video View")
@@ -194,7 +210,7 @@ else:
         st.write("---")
         st.subheader("📞 Interested in this Property?")
         
-        whatsapp_number = "+919876543210" # Apna Number yahan dal dena
+        whatsapp_number = "+919876543210" # Apna WhatsApp number dalein
         custom_message = f"Hello! Mujhe '{colony_name}' me plots ki enquiry karni hai."
         encoded_message = urllib.parse.quote(custom_message)
         whatsapp_url = f"https://wa.me/{whatsapp_number}?text={encoded_message}"
