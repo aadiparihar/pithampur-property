@@ -14,9 +14,9 @@ if 'db_data' not in st.session_state:
                 "https://images.unsplash.com/photo-1600585154340-be6161a56a0c"
             ],
             "location_text": "Near Pithampur Industrial Area, Kalibillod, Madhya Pradesh",
-            # Nayi sateek coordinates ke sath updated map iFrame embed link
-            "map_embed_url": "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3684.0538059439634!2d75.6118944!3d22.6466667!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zMjLCbDM4JzQ4LjAiTiA3NSczNicyMS4xIkU!5e0!3m2!1sen!2sin!4v1721500000000!5m2!1sen!2sin",
-            # One-click direct navigation link
+            # Aapki coordinates ke hisab se ekdum sahi map links
+            "map_embed_url": "https://maps.google.com/maps?q=22.646667,75.614472&z=15&output=embed",
+            "map_link": "https://www.google.com/maps/search/?api=1&query=22.646667,75.614472",
             "map_link": "https://www.google.com/maps/search/?api=1&query=22.646667,75.614472",
             "videos": [],
             "plots": [
