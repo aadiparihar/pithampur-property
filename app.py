@@ -14,8 +14,10 @@ if 'db_data' not in st.session_state:
                 "https://images.unsplash.com/photo-1600585154340-be6161a56a0c"
             ],
             "location_text": "Near Pithampur Industrial Area, Kalibillod, Madhya Pradesh",
-            "map_embed_url": "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3684.0759328224095!2d75.6395155!3d22.6453!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zMjLCbDM3JzQzLjEiTiA3NSczOCcyMi4zIkU!5e0!3m2!1sen!2sin!4v1721500000000!5m2!1sen!2sin",
-            "map_link": "https://maps.google.com/?q=22.6453,75.6421",
+            # Nayi sateek coordinates ke sath updated map iFrame embed link
+            "map_embed_url": "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3684.0538059439634!2d75.6118944!3d22.6466667!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zMjLCbDM4JzQ4LjAiTiA3NSczNicyMS4xIkU!5e0!3m2!1sen!2sin!4v1721500000000!5m2!1sen!2sin",
+            # One-click direct navigation link
+            "map_link": "https://www.google.com/maps/search/?api=1&query=22.646667,75.614472",
             "videos": [],
             "plots": [
                 {"no": "24", "size": "1037 sqft", "status": "Available", "price": "Call for Price"},
@@ -45,7 +47,7 @@ if admin_mode:
     if password == "admin123":
         st.sidebar.success("Welcome! Aap control panel me hain.")
         
-        # --- NEW SECTION: CUSTOMER LEADS ---
+        # --- CUSTOMER LEADS ---
         st.sidebar.subheader("📊 Customer Leads (Enquiries)")
         if not st.session_state.leads:
             st.sidebar.info("Abhi koi nayi lead nahi aayi hai.")
@@ -137,6 +139,13 @@ else:
         with col_left:
             st.subheader("🗺️ Location Map")
             st.components.v1.iframe(colony_data["map_embed_url"], height=350)
+            
+            # Actionable Map Button with exact coordinates
+            st.markdown(f'''
+                <a href="{colony_data['map_link']}" target="_blank">
+                    <button style="width: 100%; background-color: #4285F4; color: white; border: none; padding: 10px; border-radius: 5px; font-size: 16px; cursor: pointer; font-weight: bold;">📍 Open in Google Maps (Navigation)</button>
+                </a>
+            ''', unsafe_allow_html=True)
 
         with col_right:
             st.subheader("🟢 Live Plot Layout Grid")
@@ -151,7 +160,7 @@ else:
                         </div>
                         """, unsafe_allow_html=True)
 
-        # --- THE TRUST-BASED LEAD FORM ---
+        # Callback Lead Form
         st.write("---")
         st.subheader("📞 Request Site Visit / Callback")
         st.write("Agar aap is property me interested hain, toh apni details chhodein. Hamari team aapse turant baat karegi.")
@@ -163,7 +172,6 @@ else:
             
             if st.button("Submit Callback Request 📩"):
                 if c_name and c_phone:
-                    # Save lead locally
                     new_lead = {
                         "name": c_name,
                         "phone": c_phone,
@@ -177,7 +185,7 @@ else:
 
         # Direct Actions
         st.write("---")
-        whatsapp_number = "+919876543210" # Apna real number yahan daal dena bhai
+        whatsapp_number = "+919876543210"  # Apna real number yahan daal dena bhai
         custom_message = f"Hello! Mujhe '{colony_name}' me plots ki enquiry karni hai."
         whatsapp_url = f"https://wa.me/{whatsapp_number}?text={urllib.parse.quote(custom_message)}"
         
